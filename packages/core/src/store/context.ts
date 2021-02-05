@@ -22,6 +22,7 @@ export const Context = createContext<DndContextDescriptor>({
   },
   containerNodeRect: null,
   dispatch: noop,
+  initialCoordinates: {x: 0, y: 0},
   draggableNodes: {},
   droppableRects: new Map(),
   droppableContainers: {},
