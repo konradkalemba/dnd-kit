@@ -14,7 +14,8 @@
     "build": "tsdx build --tsconfig tsconfig.build.json",
     "test": "tsdx test",
     "lint": "tsdx lint",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "postinstall": "npm run build && rimraf src"
   },
   "main": "dist/index.js",
   "module": "dist/core.esm.js",
@@ -31,6 +32,7 @@
   },
   "dependencies": {
     "tslib": "^2.0.0",
+    "rimraf": "3.0.2",
     "@dnd-kit/accessibility": "^1.0.1",
     "@dnd-kit/utilities": "^1.0.1"
   },
