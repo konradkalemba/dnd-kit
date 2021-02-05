@@ -71,6 +71,7 @@ export interface DndContextDescriptor {
     rect: ViewRect | null;
     setRef: (element: HTMLElement | null) => void;
   };
+  initialCoordinates: Coordinates;
   containerNodeRect: ViewRect | null;
   draggableNodes: DraggableNodes;
   droppableContainers: DroppableContainers;

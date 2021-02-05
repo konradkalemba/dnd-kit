@@ -47,6 +47,7 @@ export const DragOverlay = React.memo(
   }: Props) => {
     const {
       active,
+      initialCoordinates,
       activeNodeRect,
       activeNodeClientRect,
       containerNodeRect,
@@ -85,10 +86,12 @@ export const DragOverlay = React.memo(
     const style: React.CSSProperties | undefined = activeNodeRect
       ? {
           position: 'fixed',
-          width: activeNodeRect.width,
-          height: activeNodeRect.height,
-          top: activeNodeRect.top,
-          left: activeNodeRect.left,
+          top:
+            initialCoordinates.y -
+            (overlayNode.rect ? overlayNode.rect.height / 2 : 0),
+          left:
+            initialCoordinates.x -
+            (overlayNode.rect ? overlayNode.rect.width / 2 : 0),
           zIndex,
           transform: CSS.Transform.toString(finalTransform),
           touchAction: 'none',

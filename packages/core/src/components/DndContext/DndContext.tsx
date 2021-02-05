@@ -152,7 +152,13 @@ export const DndContext = memo(function DndContext({
   const store = useReducer(reducer, undefined, getInitialState);
   const [state, dispatch] = store;
   const {
-    draggable: {active, lastEvent, nodes: draggableNodes, translate},
+    draggable: {
+      active,
+      lastEvent,
+      nodes: draggableNodes,
+      initialCoordinates,
+      translate,
+    },
     droppable: {containers: droppableContainers},
   } = state;
   const activeRef = useRef<UniqueIdentifier | null>(null);
@@ -174,7 +180,17 @@ export const DndContext = memo(function DndContext({
   const activeNodeClientRect = useClientRect(activeNode);
   const initialActiveNodeRectRef = useRef<ViewRect | null>(null);
   const initialActiveNodeRect = initialActiveNodeRectRef.current;
-  const nodeRectDelta = getRectDelta(activeNodeRect, initialActiveNodeRect);
+  const [overlayNodeRef, setOverlayNodeRef] = useNodeRef();
+  const overlayNodeRect = useClientRect(
+    active ? overlayNodeRef.current : null,
+    willRecomputeLayouts
+  );
+  const draggingNodeRect = overlayNodeRect ?? activeNodeClientRect;
+
+  const nodeRectDelta = getRectDelta(
+    draggingNodeRect,
+    overlayNodeRect ?? initialActiveNodeRect
+  );
   const tracked = useRef<{
     active: UniqueIdentifier | null;
     droppableRects: LayoutRectMap;
@@ -202,13 +218,6 @@ export const DndContext = memo(function DndContext({
     active ? overNode ?? activeNode : null
   );
   const scrollableAncestorRects = useClientRects(scrollableAncestors);
-
-  const [overlayNodeRef, setOverlayNodeRef] = useNodeRef();
-  const overlayNodeRect = useClientRect(
-    active ? overlayNodeRef.current : null,
-    willRecomputeLayouts
-  );
-
   const modifiedTranslate = applyModifiers(modifiers, {
     transform: {
       x: translate.x - nodeRectDelta.x,
@@ -217,7 +226,7 @@ export const DndContext = memo(function DndContext({
       scaleY: 1,
     },
     activeNodeRect: activeNodeClientRect,
-    draggingNodeRect: overlayNodeRect ?? activeNodeClientRect,
+    draggingNodeRect,
     containerNodeRect,
     overlayNodeRect,
     scrollableAncestors,
@@ -229,8 +238,8 @@ export const DndContext = memo(function DndContext({
 
   const scrollAdjustedTransalte = add(modifiedTranslate, scrolllAdjustment);
 
-  const translatedRect = activeNodeRect
-    ? getAdjustedRect(activeNodeRect, modifiedTranslate)
+  const translatedRect = draggingNodeRect
+    ? getAdjustedRect(draggingNodeRect, modifiedTranslate)
     : null;
 
   const collisionRect = translatedRect
@@ -531,6 +540,7 @@ export const DndContext = memo(function DndContext({
       activeNodeClientRect,
       activatorEvent,
       activators,
+      initialCoordinates,
       ariaDescribedById: {
         draggable: draggableDescribedById,
       },
@@ -570,6 +580,7 @@ export const DndContext = memo(function DndContext({
     droppableRects,
     over,
     recomputeLayouts,
+    initialCoordinates,
     scrollableAncestors,
     scrollableAncestorRects,
     setOverlayNodeRef,
